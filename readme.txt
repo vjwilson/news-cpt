@@ -1,9 +1,9 @@
 === News CPT ===
 Contributors: vanjwilson
-Tags: news, custom post type, cpt, widget
+Tags: news, custom post type, cpt, widget, shortcode
 Requires at least: 3.1
-Tested up to: 3.5.1
-Stable tag: trunk
+Tested up to: 3.8.1
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,8 @@ The plugin adds a News tab to your admin menu, which allows you to enter news it
 
 Default single item and archive page templates for news items are also provided. These templates have abundant IDs and classes, so that you can style them with your own CSS.
 You may also customize them by putting copies in your theme folder, and changing the markup. When you update the plugin, you will get new features and bug fixes, while keeping any customizations you made in your copies of these templates.
+
+A list of news items may be included in other post content with the list-news-items] shortcode. (See the FAQ for more information on using the shortcode.)
 
 Finally, the plugin adds a Recent News Items widget, which can be placed on any sidebar available in your theme, to show a list of news items in reverse chronological order. You can set the title of this list and the number of news items to show.
  
@@ -33,7 +35,7 @@ Finally, the plugin adds a Recent News Items widget, which can be placed on any 
 
 There is one templates named `single-news.php` which controls the display of each individual news item on a page of its own. There is also a template named `archive-news.php` which controls the display of the list of all news items.
 
-= Can I filter the list of news items by date? +
+= Can I filter the list of news items by date? =
 
 Yes. Just as you can display a list of your regular posts by year, month, or day, you can display news items for a particular year (/news/2013/), month (/news/2013/04/), or day (/news/2013/04/20/).
 
@@ -47,13 +49,48 @@ No, not usually. While many plugins instruct you to update your permalinks after
 
 = Are there shortcodes for news items? =
 
-No, not at this time. I decided to concentrate on full templates and the widget at first.
+Yes, in Version 1.1.0, I added the [list-news-items] shortcode. It fetches the last X news items in reverse chronological order and outputs them wherever you place the shortcode in any post content.
+
+= Can I customize the list returned by the [list-news-items] shortcode? =
+
+Yes. The [list-news-items] shortcode can take four (4) parameters, which control the number of posts retrieved, whether the thumbnail of the Featured Image of the news item is shown, whether the excerpt is also shown, and whether to filter the news items by a particular category slug.
+
+Here is a list of the parameter names and their defaults:
+
+* count (defaults to 5)
+* show_thumbnails (default, 1, which is true)
+* show_excerpt (default, 1, which is true)
+* category (defaults to '', which will retrieve news items from all categories)
+
+Here is an example of the shortcode using all the available parameters:
+
+`[list-news-items count=8 show_thumbnail=0 show_excerpt=0 category='holidays']`
+
+= How can I style the output of the [list-news-items] shortcode? =
+
+You can use your own CSS rules to style the output of the shortcode. The shortcode wraps its output in a div with classes of "news-items" and, if you limit it to a category slug, also a class of "category-<slug>" (where <slug> is the slug you specified in the shortcode).
+
+Each news item listed is structured like an OOCSS media object. See Nicole Sullivan's explanation of styling media objects here: [http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/](http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/).
+
+Here is an example of the output of the shortcode with only one item, from the category "publishing":
+
+    <div class="news-items category-publishing">
+        <div class="post-65 news type-news status-publish hentry category-publishing media news-item">
+            <div class="img news-item-thumbnail">
+                <a href="/news/a-story-in-the-news/"></a>
+            </div>  <!-- end of .img.news-item-thumbnail -->
+            <div class="bd news-item">
+                <h3><a href="/news/a-white-christmas-story-in-the-news/">A White Christmas Story in the News</a></h3>
+                <p class="description">The excerpt goes here.</p>
+            </div>  <!-- end of .bd.news-item -->
+        </div>  <!-- end of .media.news-item -->
+    </div>  <!-- end of .news-items -->
 
 =  Are there template tags for news items? =
 
 No. Individual news items and the news item list have their own templates. There are no specific tags to add news items to other templates, although if you're comfortable with the Wordpress functions for retrieving posts, you are welcome to use something like `get_posts()` or `query_posts()` with a post_type of "news" and any other parameters you'd like.
 
-= Where did you find the cool newspaper icon for the News tab?
+= Where did you find the cool newspaper icon for the News tab? =
 
 The icons are from the Fugue icon set created by Yusuke Kamiyamane (http://http://p.yusukekamiyamane.com/), licensed under the Creative Commons Attribution 3.0 license (http://creativecommons.org/licenses/by/3.0/).
 
@@ -66,6 +103,9 @@ The icons are from the Fugue icon set created by Yusuke Kamiyamane (http://http:
 
 == Changelog ==
 
+= 1.1 =
+* Adds [list-news-items] shortcode
+
 = 1.0 =
 * Initial release
 * Adds custom post type for News item
@@ -73,6 +113,9 @@ The icons are from the Fugue icon set created by Yusuke Kamiyamane (http://http:
 * Adds recent News item widget
 
 == Upgrade Notice ==
+
+= 1.1 =
+Get a shortcode to include a list of news items in other posts' content
 
 = 1.0 =
 Initial release

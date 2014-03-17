@@ -2,14 +2,14 @@
 /**
  * @package News Custom Post Type
  * @author Van Wilson
- * @version 1.0.0
+ * @version 1.1.0
 */
 /*
 Plugin Name: News Custom Post Type
 Plugin URI: http://www.knowmad.com/
-Description: This plugin registers a News custom post type to allow news items to be input from the admin area. Next, the plugin provides default templates to output the News items as single or archive pages. Finally, it adds a Recent News Items widget, which can be placed on any sidebar, to show a user-configurable number of news items in reverse chronological order.
+Description: This plugin registers a custom post type for News items and helps to manage those custom posts. It allows to allow news items to be input from the admin area. Next, the plugin provides default templates to output the News items as single or archive pages. Finally, it adds a Recent News Items widget, which can be placed on any sidebar, to show a user-configurable number of news items in reverse chronological order.
 Author: Van Wilson
-Version: 1.0.0
+Version: 1.1.0
 Author URI: http://www.knowmad.com/who-we-are/van-wilson/
 License: GPL2
 */
@@ -249,4 +249,93 @@ function news_cpt_generate_date_archives( $cpt, $wp_rewrite ) {
 
 add_action('generate_rewrite_rules', 'news_cpt_datearchives_rewrite_rules');
 
-?>
+/**
+ * list_news_items_shortcode
+ *
+ * @atts   list of attributes specified by user in shortcode
+ *
+ * since 1.1.0
+ */
+function list_news_items_shortcode( $atts ) {
+    global $post;
+
+    $default = array(
+      'count'          => 5,
+      'show_thumbnail' => true,
+      'category'       => '',
+      'show_excerpt'   => true,
+    );
+
+    // extract the attributes into variables
+    extract( shortcode_atts( $default, $atts ) );
+
+    /* if a category slug was passed in,
+     * try to retrieve the category ID for that slug
+     * in order to limit the query
+     *
+     */
+    $div_class = '';
+    if ( '' !== $category ) { 
+        $cat_obj = get_category_by_slug( $category );
+        if ( $cat_obj ) {
+            $catID = $cat_obj->term_id;
+            $div_class = "category-$category";
+        } else {
+            $catID = 0;
+        }
+    } else {
+        $catID = 0;
+    }
+    
+    $args = array(
+      'post_type'   => 'news',
+      'numberposts' => $count,
+      'category' => $catID,
+      'post_status' => 'publish',
+      'orderby' => 'post_date',
+      'order' => 'DESC',
+    );
+
+    $posts = get_posts( $args );
+
+
+    $output = '';
+    if( count($posts) ):
+        $output .= "<div class=\"news-items $div_class\">";
+        foreach( $posts as $post ): setup_postdata( $post );
+          $meta = get_post_custom( $post->ID );
+          $thumb = get_the_post_thumbnail( $post->ID, 'thumbnail' );
+          $link = get_permalink( $post->ID );
+          $excerpt = get_the_excerpt();
+          $classes = get_post_class( array( 'media', 'news-item' ) );
+          $class_string = implode( ' ', $classes );
+          $output .= "<div class=\"$class_string\">";
+          if ( $show_thumbnail ) :
+              $output .=  <<<EOD
+              <div class="img news-item-thumbnail">
+                  <a href="{$link}">{$thumb}</a>
+              </div>  <!-- end of .img.news-item-thumbnail -->
+EOD;
+          endif;
+          $output .=  <<<EOD
+              <div class="bd news-item">
+                  <h3><a href="{$link}">{$post->post_title}</a></h3>
+EOD;
+          if ( $show_excerpt ) :
+              $output .=  <<<EOD
+                  <p class="description">{$excerpt}</p>
+EOD;
+          endif;
+          $output .=  <<<EOD
+              </div>  <!-- end of .bd.news-item -->
+
+            </div>  <!-- end of .media.news-item -->
+EOD;
+        endforeach; wp_reset_postdata();
+        $output .= '</div>  <!-- end of .news-items -->';
+    endif;
+
+    return $output;
+}
+
+add_shortcode('list-news-items', 'list_news_items_shortcode');
