@@ -2,8 +2,8 @@
 Contributors: vanjwilson
 Tags: news, custom post type, cpt, widget, shortcode
 Requires at least: 3.1
-Tested up to: 3.8.1
-Stable tag: 1.1
+Tested up to: 3.9.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,7 +49,7 @@ No, not usually. While many plugins instruct you to update your permalinks after
 
 = Are there shortcodes for news items? =
 
-Yes, in Version 1.1.0, I added the [list-news-items] shortcode. It fetches the last X news items in reverse chronological order and outputs them wherever you place the shortcode in any post content.
+Yes, since Version 1.1.0, the [list-news-items] shortcode is available. It fetches the last X news items in reverse chronological order and outputs them wherever you place the shortcode in any post content.
 
 = Can I customize the list returned by the [list-news-items] shortcode? =
 
@@ -61,10 +61,14 @@ Here is a list of the parameter names and their defaults:
 * show_thumbnails (default, 1, which is true)
 * show_excerpt (default, 1, which is true)
 * category (defaults to '', which will retrieve news items from all categories)
+* show_date (default, 0, which will NOT show the date of each item)
+* date_format (defaults to '', which will use the default date format, e.g., 'May 13, 2014')
+
+Note: Setting the *show_date* parameter to 'date', 'dateonly' or 1 will cause the date to be printed with each item. Setting it to 'datetime' will cause the date AND time to be printed. Setting it to 'custom' will make it use a date format string that you can supply in the *date_format* parameter. If you specify the 'custom' *show_date* option, the *date_format* string should use the PHP date formatting options: see [http://www.php.net/manual/en/function.date.php](http://www.php.net/manual/en/function.date.php).
 
 Here is an example of the shortcode using all the available parameters:
 
-`[list-news-items count=8 show_thumbnail=0 show_excerpt=0 category='holidays']`
+`[list-news-items count=8 show_thumbnail=0 show_excerpt=0 category='holidays' show_date='custom' date_format='l jS F Y h:i:s A']`
 
 = How can I style the output of the [list-news-items] shortcode? =
 
@@ -77,10 +81,11 @@ Here is an example of the output of the shortcode with only one item, from the c
     <div class="news-items category-publishing">
         <div class="post-65 news type-news status-publish hentry category-publishing media news-item">
             <div class="img news-item-thumbnail">
-                <a href="/news/a-story-in-the-news/"></a>
+                <a href="/news/a-story-in-the-news/"><img width="48" height="48" src="http://localhost:8888/wp-content/uploads/2013/04/Dandelion.gif" class="attachment-thumbnail wp-post-image" alt="Dandelion"></a>
             </div>  <!-- end of .img.news-item-thumbnail -->
             <div class="bd news-item">
                 <h3><a href="/news/a-white-christmas-story-in-the-news/">A White Christmas Story in the News</a></h3>
+                <p class="date">Tuesday 13th May 2014 08:49:06 PM</p>
                 <p class="description">The excerpt goes here.</p>
             </div>  <!-- end of .bd.news-item -->
         </div>  <!-- end of .media.news-item -->
@@ -103,6 +108,9 @@ The icons are from the Fugue icon set created by Yusuke Kamiyamane (http://http:
 
 == Changelog ==
 
+= 1.1.1 =
+* Adds the show_date and date_format parameters to the [list-news-items] shortcode
+
 = 1.1 =
 * Adds [list-news-items] shortcode
 
@@ -113,6 +121,9 @@ The icons are from the Fugue icon set created by Yusuke Kamiyamane (http://http:
 * Adds recent News item widget
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Add show_date and date_format options to the [list-news-items] shortcode
 
 = 1.1 =
 Get a shortcode to include a list of news items in other posts' content

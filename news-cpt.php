@@ -2,18 +2,18 @@
 /**
  * @package News Custom Post Type
  * @author Van Wilson
- * @version 1.1.0
+ * @version 1.1.1
 */
 /*
 Plugin Name: News Custom Post Type
-Plugin URI: http://www.knowmad.com/
-Description: This plugin registers a custom post type for News items and helps to manage those custom posts. It allows to allow news items to be input from the admin area. Next, the plugin provides default templates to output the News items as single or archive pages. Finally, it adds a Recent News Items widget, which can be placed on any sidebar, to show a user-configurable number of news items in reverse chronological order.
+Plugin URI: http://vanwilson.info/wordpress/plugins/news-cpt-plugin-for-wordpress/
+Description: This plugin registers a custom post type for News items and helps to manage those custom posts. It allows news items to be input from the admin area. Next, the plugin provides default templates to output the News items as single or archive pages. Finally, it adds a Recent News Items widget, which can be placed on any sidebar, to show a user-configurable number of news items in reverse chronological order.
 Author: Van Wilson
-Version: 1.1.0
-Author URI: http://www.knowmad.com/who-we-are/van-wilson/
+Version: 1.1.1
+Author URI: http://vanwilson.info/
 License: GPL2
 */
-/*  Copyright 2012  Van Wilson, Knowmad      (email : van@knowmad.com)
+/*  Copyright 2012  Van Wilson      (email : van at vanwilson.info)
 	
 	    This program is free software; you can redistribute it and/or modify
 	    it under the terms of the GNU General Public License, version 2, as
@@ -254,7 +254,8 @@ add_action('generate_rewrite_rules', 'news_cpt_datearchives_rewrite_rules');
  *
  * @atts   list of attributes specified by user in shortcode
  *
- * since 1.1.0
+ * @since 1.1.1 Added the show_date and date_format shortcode arguments.
+ * @since 1.1.0
  */
 function list_news_items_shortcode( $atts ) {
     global $post;
@@ -263,6 +264,8 @@ function list_news_items_shortcode( $atts ) {
       'count'          => 5,
       'show_thumbnail' => true,
       'category'       => '',
+      'show_date'      => false,
+      'date_format'    => '',
       'show_excerpt'   => true,
     );
 
@@ -290,10 +293,10 @@ function list_news_items_shortcode( $atts ) {
     $args = array(
       'post_type'   => 'news',
       'numberposts' => $count,
-      'category' => $catID,
+      'category'    => $catID,
       'post_status' => 'publish',
-      'orderby' => 'post_date',
-      'order' => 'DESC',
+      'orderby'     => 'post_date',
+      'order'       => 'DESC',
     );
 
     $posts = get_posts( $args );
@@ -306,6 +309,26 @@ function list_news_items_shortcode( $atts ) {
           $meta = get_post_custom( $post->ID );
           $thumb = get_the_post_thumbnail( $post->ID, 'thumbnail' );
           $link = get_permalink( $post->ID );
+          if ( $show_date ) {
+            switch ( $show_date ) {
+              case 'custom':
+                if ( $date_format ) {
+                  $custom_date_format = sanitize_text_field( $date_format );
+                  $date = get_the_date( $custom_date_format );
+                } else {
+                  $date = get_the_date( 'F j, Y' );
+                }
+                break;
+              case 'datetime':
+                $date = get_the_date( 'F j, Y g:i a' );
+                break;
+              case 'date':
+              case 'dateonly':
+              default:
+                $date = get_the_date( 'F j, Y ' );
+                break;
+            }
+          }
           $excerpt = get_the_excerpt();
           $classes = get_post_class( array( 'media', 'news-item' ) );
           $class_string = implode( ' ', $classes );
@@ -321,6 +344,11 @@ EOD;
               <div class="bd news-item">
                   <h3><a href="{$link}">{$post->post_title}</a></h3>
 EOD;
+          if ( $show_date ) :
+              $output .=  <<<EOD
+                  <p class="date">{$date}</p>
+EOD;
+          endif;
           if ( $show_excerpt ) :
               $output .=  <<<EOD
                   <p class="description">{$excerpt}</p>
